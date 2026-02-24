@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adl - Legal AI Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="rtl-support">
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i data-lucide="scale"></i>
+                </div>
+                <h1>Adl</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active">
+                    <i data-lucide="message-square"></i>
+                    <span>محادثة جديدة</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <p class="sidebar-info">Adl Legal Assistant v1.0</p>
+            </div>
+        </aside>
+
+        <main class="chat-interface">
+            <header class="chat-header">
+                <div class="header-info">
+                    <h2>المساعد القانوني اللبناني</h2>
+                    <p>إرشاد قانوني مدعوم بالذكاء الاصطناعي</p>
+                </div>
+            </header>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="message assistant">
+                    <div class="message-content">
+                        <p>أهلاً بك في <strong>Adl</strong>. أنا مساعدك المتخصص في القانون اللبناني. كيف يمكنني مساعدتك
+                            في استفساراتك القانونية اليوم؟</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea id="user-input" placeholder="Type your legal query here..." rows="1"></textarea>
+                    <button id="send-btn" class="send-btn">
+                        <i data-lucide="send"></i>
+                    </button>
+                </div>
+                <p class="disclaimer">Adl provides guidance based on Lebanese legislation, but is not a substitute for
+                    professional legal advice.</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

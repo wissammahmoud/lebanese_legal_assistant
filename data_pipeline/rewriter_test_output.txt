@@ -1,0 +1,208 @@
+﻿
+======================================================================
+   QUERY REWRITER TEST ΓÇô Lebanese Legal Assistant
+======================================================================
+
+[1] Eviction ΓÇô English (colloquial)
+  ORIGINAL  : My landlord kicked me out without any warning or reason
+2026-02-20 18:04:45 [info     ] QueryRewriter: rewriting query query='My landlord kicked me out without any warning or reason'
+python : 
+INFO:httpx:HTTP 
+Request: POST https:/
+/api.openai.com/v1/ch
+at/completions 
+"HTTP/1.1 200 OK"
+At line:1 char:1
++ python -X utf8 data
+_pipeline/test_retrie
+val.py 
+--test-rewriter 
+--no-s ...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (INFO:ht   
+ tpx:HTTP...TTP/1    
+.1 200 OK":Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+  REWRITTEN : ╪╖╪▒╪»┘å┘è ╪º┘ä┘à╪ñ╪¼╪▒ ┘à┘å ╪º┘ä╪╣┘é╪º╪▒ ╪»┘ê┘å ╪Ñ┘å╪░╪º╪▒ ┘à╪│╪¿┘é ╪ú┘ê ╪│╪¿╪¿ ┘à╪┤╪▒┘ê╪╣╪î ┘à┘à╪º ┘è╪┤┘â┘ä ╪º┘å╪¬┘ç╪º┘â╪º┘ï ┘ä╪ú╪¡┘â╪º┘à ┘é╪º┘å┘ê┘å ╪º┘ä┘à┘ê╪¼╪¿╪º╪¬ ┘ê╪º┘ä╪╣┘é┘ê╪».
+----------------------------------------------------------------------
+
+[2] Unfair dismissal ΓÇô Arabic (colloquial)
+  ORIGINAL  : ╪╖╪▒╪»┘å┘è ╪╡╪º╪¡╪¿ ╪º┘ä╪╣┘à┘ä ┘à┘å ╪º┘ä╪┤╪║┘ä ╪¿╪»┘ê┘å ┘à╪º ┘è╪╣╪╖┘è┘å┘è ╪│╪¿╪¿ ╪ú┘ê ╪Ñ╪┤╪╣╪º╪▒ ┘à╪│╪¿┘é
+2026-02-20 18:04:46 [info     ] QueryRewriter: rewriting query query='╪╖╪▒╪»┘å┘è ╪╡╪º╪¡╪¿ ╪º┘ä╪╣┘à┘ä ┘à┘å ╪º┘ä╪┤╪║┘ä ╪¿╪»┘ê┘å ┘à╪º ┘è╪╣╪╖┘è┘å┘è ╪│╪¿╪¿ ╪ú┘ê ╪Ñ╪┤╪╣╪º╪▒ ┘à╪│╪¿┘é'
+INFO:httpx:HTTP 
+Request: POST https:/
+/api.openai.com/v1/ch
+at/completions 
+"HTTP/1.1 200 OK"
+  REWRITTEN : ╪Ñ┘å ╪Ñ┘å┘ç╪º╪í ╪╣┘é╪» ╪º┘ä╪╣┘à┘ä ┘à┘å ┘é╪¿┘ä ╪╡╪º╪¡╪¿ ╪º┘ä╪╣┘à┘ä ╪»┘ê┘å ╪¬┘é╪»┘è┘à ╪│╪¿╪¿ ┘à╪┤╪▒┘ê╪╣ ╪ú┘ê ╪Ñ╪┤╪╣╪º╪▒ ┘à╪│╪¿┘é ┘è╪╣╪» ╪«╪▒┘é╪º┘ï ┘ä╪ú╪¡┘â╪º┘à ┘à╪▒╪│┘ê┘à ╪º╪┤╪¬╪▒╪º╪╣┘è 17386 - ┘é╪º┘å┘ê┘å ╪º┘ä╪╣┘à┘ä╪î ┘à┘à╪º ┘è╪¡┘é ┘ä┘ä┘à┘ê╪╕┘ü ╪º┘ä┘à╪╖╪º┘ä╪¿╪⌐ ╪¿╪º┘ä╪¬╪╣┘ê┘è╪╢ ╪╣┘å ╪º┘ä╪ú╪╢╪▒╪º╪▒ ╪º┘ä┘å╪º╪¬╪¼╪⌐ ╪╣┘å ┘ç╪░╪º ╪º┘ä╪Ñ┘å┘ç╪º╪í.
+----------------------------------------------------------------------
+
+[3] Unpaid wages ΓÇô French
+  ORIGINAL  : Mon employeur ne m'a pas pay├⌐ depuis 3 mois et refuse de r├⌐pondre
+2026-02-20 18:04:49 [info     ] QueryRewriter: rewriting query query="Mon employeur ne m'a pas pay├⌐ depuis 3 mois et refuse de r├⌐pondre"
+ERROR:asyncio:Task 
+exception was never 
+retrieved
+future: <Task 
+finished 
+name='Task-10' coro=<
+AsyncClient.aclose() 
+done, defined at c:\U
+sers\wissa\Proj\Leban
+eseLegalAssistant\Lib
+\site-packages\httpx\
+_client.py:1978> exce
+ption=RuntimeError('E
+vent loop is 
+closed')>
+Traceback (most 
+recent call last):
+  File "c:\Users\wiss
+a\Proj\LebaneseLegalA
+ssistant\Lib\site-pac
+kages\httpx\_client.p
+y", line 1985, in 
+aclose
+    await self._trans
+port.aclose()
+  File "c:\Users\wiss
+a\Proj\LebaneseLegalA
+ssistant\Lib\site-pac
+kages\httpx\_transpor
+ts\default.py", line 
+406, in aclose
+    await 
+self._pool.aclose()
+  File "c:\Users\wiss
+a\Proj\LebaneseLegalA
+ssistant\Lib\site-pac
+kages\httpcore\_async
+\connection_pool.py",
+ line 353, in aclose
+    await self._close
+_connections(closing_
+connections)
+  File "c:\Users\wiss
+a\Proj\LebaneseLegalA
+ssistant\Lib\site-pac
+kages\httpcore\_async
+\connection_pool.py",
+ line 345, in 
+_close_connections
+    await 
+connection.aclose()
+  File "c:\Users\wiss
+a\Proj\LebaneseLegalA
+ssistant\Lib\site-pac
+kages\httpcore\_async
+\connection.py", 
+line 173, in aclose
+    await self._conne
+ction.aclose()
+  File "c:\Users\wiss
+a\Proj\LebaneseLegalA
+ssistant\Lib\site-pac
+kages\httpcore\_async
+\http11.py", line 
+258, in aclose
+    await self._netwo
+rk_stream.aclose()
+  File "c:\Users\wiss
+a\Proj\LebaneseLegalA
+ssistant\Lib\site-pac
+kages\httpcore\_backe
+nds\anyio.py", line 
+53, in aclose
+    await 
+self._stream.aclose()
+  File "c:\Users\wiss
+a\Proj\LebaneseLegalA
+ssistant\Lib\site-pac
+kages\anyio\streams\t
+ls.py", line 241, in 
+aclose
+    await self.transp
+ort_stream.aclose()
+  File "c:\Users\wiss
+a\Proj\LebaneseLegalA
+ssistant\Lib\site-pac
+kages\anyio\_backends
+\_asyncio.py", line 
+1329, in aclose
+    self._transport.c
+lose()
+  File "C:\Users\wiss
+a\miniconda3\Lib\asyn
+cio\proactor_events.p
+y", line 109, in 
+close
+    self._loop.call_s
+oon(self._call_connec
+tion_lost, None)
+  File "C:\Users\wiss
+a\miniconda3\Lib\asyn
+cio\base_events.py", 
+line 761, in 
+call_soon
+    
+self._check_closed()
+  File "C:\Users\wiss
+a\miniconda3\Lib\asyn
+cio\base_events.py", 
+line 519, in 
+_check_closed
+    raise 
+RuntimeError('Event 
+loop is closed')
+RuntimeError: Event 
+loop is closed
+INFO:httpx:HTTP 
+Request: POST https:/
+/api.openai.com/v1/ch
+at/completions 
+"HTTP/1.1 200 OK"
+  REWRITTEN : ╪╣╪»┘à ╪»┘ü╪╣ ╪º┘ä╪ú╪¼╪▒ ┘à┘å ┘é╪¿┘ä ╪╡╪º╪¡╪¿ ╪º┘ä╪╣┘à┘ä ┘ä┘à╪»╪⌐ ╪½┘ä╪º╪½╪⌐ ╪ú╪┤┘ç╪▒ ┘ê╪▒┘ü╪╢┘ç ╪º┘ä╪¬┘ê╪º╪╡┘ä ┘à╪╣ ╪º┘ä╪╣╪º┘à┘ä ┘è╪┤┘â┘ä ╪«╪▒┘é╪º┘ï ┘ä╪ú╪¡┘â╪º┘à ┘é╪º┘å┘ê┘å ╪º┘ä╪╣┘à┘ä ╪º┘ä┘ä╪¿┘å╪º┘å┘è╪î ┘ê╪¿╪º┘ä╪¬╪¡╪»┘è╪» ┘à╪▒╪│┘ê┘à ╪º╪┤╪¬╪▒╪º╪╣┘è 17386 - ┘é╪º┘å┘ê┘å ╪º┘ä╪╣┘à┘ä.
+----------------------------------------------------------------------
+
+[4] Child custody ΓÇô English
+  ORIGINAL  : Can my wife take the kids abroad if we separate or get divorced?
+2026-02-20 18:04:51 [info     ] QueryRewriter: rewriting query query='Can my wife take the kids abroad if we separate or get divorced?'
+INFO:httpx:HTTP 
+Request: POST https:/
+/api.openai.com/v1/ch
+at/completions 
+"HTTP/1.1 200 OK"
+  REWRITTEN : ┘ç┘ä ┘è╪¡┘é ┘ä╪▓┘ê╪¼╪¬┘è ╪ú╪«╪░ ╪º┘ä╪ú┘ê┘ä╪º╪» ╪Ñ┘ä┘ë ╪º┘ä╪«╪º╪▒╪¼ ┘ü┘è ╪¡╪º┘ä ╪º┘å┘ü╪╡╪º┘ä┘å╪º ╪ú┘ê ╪¡╪╡┘ê┘ä ╪º┘ä╪╖┘ä╪º┘é ┘ê┘ü┘é╪º┘ï ┘ä┘é╪º┘å┘ê┘å ╪º┘ä╪ú╪¡┘ê╪º┘ä ╪º┘ä╪┤╪«╪╡┘è╪⌐ ╪º┘ä┘ä╪¿┘å╪º┘å┘è╪ƒ
+----------------------------------------------------------------------
+
+[5] End-of-service indemnity ΓÇô English
+  ORIGINAL  : The company fired me after 8 years and didn't give me my end-of-service money
+2026-02-20 18:04:52 [info     ] QueryRewriter: rewriting query query="The company fired me after 8 years and didn't give me my end-of-service money"
+INFO:httpx:HTTP 
+Request: POST https:/
+/api.openai.com/v1/ch
+at/completions 
+"HTTP/1.1 200 OK"
+  REWRITTEN : ╪Ñ┘å ╪º┘ä╪┤╪▒┘â╪⌐ ┘é╪º┘à╪¬ ╪¿┘ü╪╡┘ä┘è ╪¿╪╣╪» ┘à╪╢┘è ╪½┘à╪º┘å┘è ╪│┘å┘ê╪º╪¬ ┘à┘å ╪º┘ä╪«╪»┘à╪⌐ ╪»┘ê┘å ╪ú┘å ╪¬╪│╪»╪» ┘ä┘è ┘à╪│╪¬╪¡┘é╪º╪¬ ┘å┘ç╪º┘è╪⌐ ╪º┘ä╪«╪»┘à╪⌐ ┘ê┘ü┘é╪º┘ï ┘ä╪ú╪¡┘â╪º┘à ┘à╪▒╪│┘ê┘à ╪º╪┤╪¬╪▒╪º╪╣┘è 17386 - ┘é╪º┘å┘ê┘å ╪º┘ä╪╣┘à┘ä.
+----------------------------------------------------------------------
+
+[6] Hit-and-run ΓÇô English
+  ORIGINAL  : Someone hit my parked car and drove off, what are my legal options?
+2026-02-20 18:04:55 [info     ] QueryRewriter: rewriting query query='Someone hit my parked car and drove off, what are my legal options?'
+INFO:httpx:HTTP 
+Request: POST https:/
+/api.openai.com/v1/ch
+at/completions 
+"HTTP/1.1 200 OK"
+  REWRITTEN : ┘à╪º ┘ç┘è ╪º┘ä╪«┘è╪º╪▒╪º╪¬ ╪º┘ä┘é╪º┘å┘ê┘å┘è╪⌐ ╪º┘ä┘à╪¬╪º╪¡╪⌐ ┘ä┘è ┘ü┘è ╪¡╪º┘ä╪⌐ ╪¬╪╣╪▒╪╢ ╪│┘è╪º╪▒╪¬┘è ╪º┘ä┘à╪¬┘ê┘é┘ü╪⌐ ┘ä┘ä╪╢╪▒╪▒ ┘å╪¬┘è╪¼╪⌐ ╪º╪╡╪╖╪»╪º┘à ╪┤╪«╪╡ ╪ó╪«╪▒ ╪¿┘ç╪º ┘ê┘é┘è╪º┘à┘ç ╪¿╪º┘ä┘ü╪▒╪º╪▒╪î ┘ê┘ü┘é╪º┘ï ┘ä┘é╪º┘å┘ê┘å ╪º┘ä╪╣┘é┘ê╪¿╪º╪¬ ╪º┘ä┘ä╪¿┘å╪º┘å┘è ┘ê┘é╪º┘å┘ê┘å ╪º┘ä┘à┘ê╪¼╪¿╪º╪¬ ┘ê╪º┘ä╪╣┘é┘ê╪»╪ƒ
+----------------------------------------------------------------------
