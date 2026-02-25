@@ -16,9 +16,18 @@ class VectorStoreService:
         self._collection = None
 
     def _connect(self):
-        """Ensures a connection to Milvus exists."""
+        """Ensures a connection to Milvus exists. Handles local and Zilliz Cloud."""
         if not connections.has_connection("default"):
-            connections.connect(uri=settings.MILVUS_URI)
+            if settings.MILVUS_URI.startswith("https"):
+                log.info("Connecting to Zilliz Cloud")
+                connections.connect(
+                    alias="default",
+                    uri=settings.MILVUS_URI,
+                    token=settings.MILVUS_TOKEN
+                )
+            else:
+                log.info("Connecting to local Milvus")
+                connections.connect(alias="default", uri=settings.MILVUS_URI)
         
         if not self._collection:
             if utility.has_collection(settings.MILVUS_COLLECTION_NAME):

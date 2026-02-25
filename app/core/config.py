@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str
     
     MILVUS_URI: str = "http://localhost:19530"
+    MILVUS_TOKEN: Optional[str] = None
     MILVUS_COLLECTION_NAME: str = "lebanese_laws"
     MILVUS_DIMENSION: int = 1536
     

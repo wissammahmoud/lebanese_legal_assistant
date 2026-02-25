@@ -47,12 +47,24 @@ def ingest_data(excel_path: str):
         return
 
     # Connect to Milvus
-    log.info("Connecting to Milvus...", uri=settings.MILVUS_URI)
-    try:
-        connections.connect(uri=settings.MILVUS_URI)
-    except Exception as e:
-        log.error("Failed to connect to Milvus", error=str(e))
-        return
+    if settings.MILVUS_URI.startswith("https"):
+        log.info("Connecting to Zilliz Cloud...", uri=settings.MILVUS_URI)
+        try:
+            connections.connect(
+                alias="default",
+                uri=settings.MILVUS_URI,
+                token=settings.MILVUS_TOKEN
+            )
+        except Exception as e:
+            log.error("Failed to connect to Zilliz Cloud", error=str(e))
+            return
+    else:
+        log.info("Connecting to Milvus...", uri=settings.MILVUS_URI)
+        try:
+            connections.connect(uri=settings.MILVUS_URI)
+        except Exception as e:
+            log.error("Failed to connect to Milvus", error=str(e))
+            return
 
     collection_name = settings.MILVUS_COLLECTION_NAME
     if not utility.has_collection(collection_name):

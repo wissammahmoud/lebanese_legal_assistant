@@ -40,3 +40,7 @@ Thumbs.db
 # Project specific
 data/
 data_pipeline/vector_db/milvus_data/
+data_pipeline/vector_db/volumes/
+*.tmp
+*.log
+docker-compose.override.yml

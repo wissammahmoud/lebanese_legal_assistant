@@ -14,12 +14,24 @@ logging.basicConfig(level=logging.INFO)
 log = structlog.get_logger()
 
 def create_collection():
-    log.info("Connecting to Milvus...", uri=settings.MILVUS_URI)
-    try:
-        connections.connect(uri=settings.MILVUS_URI)
-    except Exception as e:
-        log.error("Failed to connect to Milvus", error=str(e))
-        return
+    if settings.MILVUS_URI.startswith("https"):
+        log.info("Connecting to Zilliz Cloud...", uri=settings.MILVUS_URI)
+        try:
+            connections.connect(
+                alias="default",
+                uri=settings.MILVUS_URI,
+                token=settings.MILVUS_TOKEN
+            )
+        except Exception as e:
+            log.error("Failed to connect to Zilliz Cloud", error=str(e))
+            return
+    else:
+        log.info("Connecting to Milvus...", uri=settings.MILVUS_URI)
+        try:
+            connections.connect(uri=settings.MILVUS_URI)
+        except Exception as e:
+            log.error("Failed to connect to Milvus", error=str(e))
+            return
 
     collection_name = settings.MILVUS_COLLECTION_NAME
     dim = settings.MILVUS_DIMENSION

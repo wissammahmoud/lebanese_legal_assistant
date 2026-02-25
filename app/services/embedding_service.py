@@ -12,7 +12,11 @@ log = structlog.get_logger()
 class EmbeddingService:
     def __init__(self):
         self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-        self.redis = redis.from_url(settings.REDIS_URL, decode_responses=True)
+        self.redis = redis.from_url(
+            settings.REDIS_URL, 
+            decode_responses=True,
+            ssl_cert_reqs=None
+        )
 
     def _get_hash(self, text: str) -> str:
         return hashlib.sha256(text.encode()).hexdigest()
