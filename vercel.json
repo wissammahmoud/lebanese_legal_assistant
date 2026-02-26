@@ -1,11 +1,4 @@
 {
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/app/main.py"
-    }
-  ],
   "builds": [
     {
       "src": "app/main.py",
@@ -14,6 +7,16 @@
     {
       "src": "frontend/**",
       "use": "@vercel/static"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "app/main.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "frontend/$1"
     }
   ]
 }
