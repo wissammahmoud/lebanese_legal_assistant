@@ -37,12 +37,12 @@ async function sendMessage() {
     let assistantMessageDiv = null;
     let assistantMessageContent = null;
     let fullResponse = "";
-    const API_BASE = ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname)
-        ? ''
-        : '/api/v1/chat/stream';
+    const API_URL = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
+        ? 'http://127.0.0.1:8000/api/v1/chat/stream' // Local FastAPI port
+        : '/api/v1/chat/stream';                   // Vercel relative path
 
     try {
-        const response = await fetch(`${API_BASE}/api/v1/chat/stream`, {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -54,7 +54,6 @@ async function sendMessage() {
                 user_context: { platform: 'web_demo' }
             })
         });
-
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
 
