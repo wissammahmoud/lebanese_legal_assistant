@@ -2,16 +2,18 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/api/v1/(.*)",
-      "destination": "app/main.py"
+      "source": "/api/(.*)",
+      "destination": "/app/main.py"
+    }
+  ],
+  "builds": [
+    {
+      "src": "app/main.py",
+      "use": "@vercel/python"
     },
     {
-      "source": "/health",
-      "destination": "app/main.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "frontend/$1"
+      "src": "frontend/**",
+      "use": "@vercel/static"
     }
   ]
 }
