@@ -39,7 +39,7 @@ async function sendMessage() {
     let fullResponse = "";
     const API_BASE = ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname)
         ? ''
-        : 'https://doux-estella-precautious.ngrok-free.dev';
+        : '/api/v1/chat/stream';
 
     try {
         const response = await fetch(`${API_BASE}/api/v1/chat/stream`, {

@@ -32,7 +32,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For demo purposes, otherwise specify the exact origin
+    allow_origins=["*"],  # For production, replace "*" with your actual vercel domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
