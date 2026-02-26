@@ -3,6 +3,10 @@
     {
       "source": "/api/(.*)",
       "destination": "index.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
     }
   ]
 }
