@@ -1,9 +1,7 @@
-import os
 import sys
+import os
 
-# Add the root directory to the sys.path so 'app' can be found
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+# This tells Python to look in the root directory for the 'app' module
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.main import app
-
-# This is what Vercel will run
