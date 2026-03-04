@@ -39,7 +39,7 @@ class VectorStoreService:
 
     @db_breaker
     @traceable(run_type="retriever", name="Milvus Vector Search")
-    async def search(self, vector: list[float], limit: int = 3) -> list[dict]:
+    async def search(self, vector: list[float], limit: int = 5) -> list[dict]:
         """
         Performs a vector search. Wrapped in a circuit breaker.
         Runs the synchronous Milvus call in a separate thread.

@@ -12,11 +12,18 @@ log = structlog.get_logger()
 class EmbeddingService:
     def __init__(self):
         self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-        self.redis = redis.from_url(
-            settings.REDIS_URL, 
-            decode_responses=True,
-            ssl_cert_reqs=None
-        )
+        # Upstash and most cloud providers need SSL for rediss://
+        is_ssl = settings.REDIS_URL.startswith("rediss://")
+        try:
+            self.redis = redis.from_url(
+                settings.REDIS_URL, 
+                decode_responses=True,
+                ssl=is_ssl,
+                ssl_cert_reqs=None # Let redis-py handle it based on URL
+            )
+        except Exception as e:
+            log.error("Failed to initialize Redis", error=str(e))
+            self.redis = None # Fallback to no cache
 
     def _get_hash(self, text: str) -> str:
         return hashlib.sha256(text.encode()).hexdigest()
@@ -28,10 +35,11 @@ class EmbeddingService:
         
         # Check Cache
         try:
-            cached = await self.redis.get(cache_key)
-            if cached:
-                log.info("Embedding cache hit", text_hash=text_hash[:8])
-                return json.loads(cached)
+            if self.redis:
+                cached = await self.redis.get(cache_key)
+                if cached:
+                    log.info("Embedding cache hit", text_hash=text_hash[:8])
+                    return json.loads(cached)
         except Exception as e:
             log.warning("Redis cache read error", error=str(e))
 
@@ -41,7 +49,8 @@ class EmbeddingService:
             
             # Save to Cache (TTL 24h)
             try:
-                await self.redis.setex(cache_key, 86400, json.dumps(embedding))
+                if self.redis:
+                    await self.redis.setex(cache_key, 86400, json.dumps(embedding))
             except Exception as e:
                 log.warning("Redis cache write error", error=str(e))
                 
@@ -59,4 +68,5 @@ class EmbeddingService:
         log.info("Calling OpenAI for embedding")
         text = text.replace("\n", " ")
         response = await self.client.embeddings.create(input=[text], model="text-embedding-3-small")
+        log.info("OpenAI embedding received")
         return response.data[0].embedding

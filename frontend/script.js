@@ -37,8 +37,8 @@ async function sendMessage() {
     let assistantMessageDiv = null;
     let assistantMessageContent = null;
     let fullResponse = "";
-    const API_URL = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
-        ? 'http://127.0.0.1:8000/api/v1/chat/stream' // Local FastAPI port
+    const API_URL = (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1') || window.location.protocol === 'file:' || !window.location.hostname)
+        ? 'http://127.0.0.1:1234/api/v1/chat/stream' // Local FastAPI port
         : '/api/v1/chat/stream';                   // Vercel relative path
 
     try {
