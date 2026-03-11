@@ -1,3 +1,4 @@
+import re
 import structlog
 import pybreaker
 from typing import List, Optional
@@ -13,6 +14,25 @@ from langchain_openai import ChatOpenAI
 from app.core.config import settings
 
 log = structlog.get_logger()
+
+_GREETING_RESPONSE = (
+    "أهلاً وسهلاً! أنا ADL Legal Assistant، مساعدك القانوني المتخصص في القانون اللبناني. "
+    "كيف يمكنني مساعدتك اليوم؟ يسعدني الإجابة على استفساراتك القانونية المتعلقة بالقوانين والتشريعات والاجتهادات اللبنانية."
+)
+
+_OFF_TOPIC_RESPONSE = (
+    "أعتذر، أنا مساعد قانوني متخصص حصرياً في القانون اللبناني ولا أستطيع الإجابة على أسئلة خارج نطاق هذا التخصص. "
+    "هل لديك استفسار قانوني يتعلق بالقوانين أو التشريعات أو الاجتهادات القضائية اللبنانية؟"
+)
+
+_INTENT_SYSTEM_PROMPT = """\
+Classify the user's message into exactly one of these three categories:
+- greeting: a social greeting, farewell, or small talk with no legal content (e.g. "hello", "how are you", "هو ار يو", "مرحبا", "شكراً")
+- legal: any question, scenario, or request related to Lebanese law, legal procedures, court rulings, contracts, or legal rights
+- off_topic: anything else that is not a legal question and not a greeting (e.g. weather, sports, cooking, jokes, technical questions unrelated to law)
+
+Reply with ONLY one word: greeting, legal, or off_topic.\
+"""
 
 class RAGService:
     def __init__(self):
@@ -31,8 +51,15 @@ class RAGService:
     @traceable(run_type="chain", name="RAG Pipeline")
     async def process_query(self, request: ChatRequest) -> ChatResponse:
         query = request.query
-        
         log.info("Processing query", query=query)
+
+        # 0. Intent gate
+        intent = await self._classify_intent(query)
+        log.info("Intent classified", intent=intent)
+        if intent == "greeting":
+            return ChatResponse(response=_GREETING_RESPONSE, sources=[])
+        if intent == "off_topic":
+            return ChatResponse(response=_OFF_TOPIC_RESPONSE, sources=[])
 
         # 1. Retrieve & Prepare
         messages, sources, context_text = await self._prepare_rag_context(request)
@@ -57,6 +84,18 @@ class RAGService:
     async def stream_query(self, request: ChatRequest):
         query = request.query
         log.info("Streaming query", query=query)
+
+        # 0. Intent gate — short-circuit before touching rewriter / embeddings / Milvus
+        intent = await self._classify_intent(query)
+        log.info("Intent classified", intent=intent)
+        if intent == "greeting":
+            yield {"type": "sources", "sources": []}
+            yield {"type": "content", "content": _GREETING_RESPONSE}
+            return
+        if intent == "off_topic":
+            yield {"type": "sources", "sources": []}
+            yield {"type": "content", "content": _OFF_TOPIC_RESPONSE}
+            return
 
         # 1. Retrieve & Prepare
         messages, sources, context_text = await self._prepare_rag_context(request)
@@ -93,10 +132,18 @@ class RAGService:
         context_text = ""
         sources = []
         retrieval_error = None
-        
+
         if vector:
             try:
-                raw_results = await self.vector_store.search(vector)
+                # Build a metadata filter if the user asked about a specific article number
+                expr = self._build_article_filter(query)
+                raw_results = await self.vector_store.search(vector, expr=expr)
+
+                # If the filter returned nothing, fall back to unfiltered vector search
+                if expr and not raw_results:
+                    log.info("Filtered search returned no results, falling back to vector-only search")
+                    raw_results = await self.vector_store.search(vector)
+
                 log.info("Retrieved documents from Milvus", count=len(raw_results))
                 for r in raw_results:
                     log.info("Document retrieved", id=r["id"], score=r["score"], source=r["source"])
@@ -143,6 +190,42 @@ class RAGService:
 
         return messages, sources, context_text
 
+    async def _classify_intent(self, query: str) -> str:
+        """Returns 'greeting', 'legal', or 'off_topic'. Falls back to 'legal' on error."""
+        try:
+            resp = await self.llm_service.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": _INTENT_SYSTEM_PROMPT},
+                    {"role": "user", "content": query},
+                ],
+                temperature=0,
+                max_tokens=5,
+            )
+            label = resp.choices[0].message.content.strip().lower()
+            if label in ("greeting", "legal", "off_topic"):
+                return label
+            return "legal"
+        except Exception as e:
+            log.warning("Intent classification failed, defaulting to legal", error=str(e))
+            return "legal"
+
+    def _build_article_filter(self, query: str) -> str | None:
+        """
+        Detects if the user is asking about a specific article number and returns
+        a Milvus filter expression to pin retrieval to that exact article.
+        Handles Arabic-Indic numerals (٢٤) and Western numerals (24).
+        """
+        pattern = r'(?:مادة|المادة|article)\s*([٠-٩\d]+)'
+        match = re.search(pattern, query, re.IGNORECASE)
+        if not match:
+            return None
+        num_str = match.group(1).translate(str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789'))
+        article_num = int(num_str)
+        expr = f'metadata["article_number"] == {article_num}'
+        log.info("Article filter detected", article_number=article_num, expr=expr)
+        return expr
+
     def _run_online_eval(self, query: str, context: str, answer: str):
         try:
             eval_result = self.judge(
@@ -168,12 +251,22 @@ class RAGService:
 5. لا تقم أبداً باختراع نصوص قانونية غير موجودة.
 6. إذا كان السؤال يتطلب استنتاجاً منطقياً من النصوص المتوفرة، فقم بذلك مع التوضيح.
 
-هيكلية الإجابة:
-- الإجابة القانونية:
+هيكلية الإجابة (التزم بهذا الترتيب دائماً):
+
+**الإجابة القانونية:**
 [عرض الإجابة بناءً على السياق المتوفر]
 
-- النصوص القانونية والاجتهادات (من السياق):
-[ذكر المصادر التي تم الاعتماد عليها مع تفاصيل من خانة الـ Metadata مثل اسم القانون، رقم المادة، أو السنة]
+---
+**المصادر القانونية المعتمدة:**
+لكل مصدر استخدمته من السياق، اذكر السطر التالي بالتفصيل:
+- للمواد القانونية: اسم القانون | رقم المادة | التصنيف (مدني / جزائي / تجاري ...)
+- للاجتهادات القضائية: رقم القرار | السنة | المحكمة | تاريخ الجلسة | الرئيس | الأعضاء
+
+مثال للمواد:
+📄 قانون أصول المحاكمات المدنية — المادة 24 — تصنيف: مدني
+
+مثال للاجتهادات:
+⚖️ قرار رقم 128 لعام 2021 — محكمة التمييز الجزائية — جلسة 15/09/2021 — الرئيس: سهير الحركة
 
 داًئماً حافظ على نبرة مهنية ورسمية.
 """

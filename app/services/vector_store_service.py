@@ -39,13 +39,14 @@ class VectorStoreService:
 
     @db_breaker
     @traceable(run_type="retriever", name="Milvus Vector Search")
-    async def search(self, vector: list[float], limit: int = 5) -> list[dict]:
+    async def search(self, vector: list[float], limit: int = 5, expr: str = None) -> list[dict]:
         """
         Performs a vector search. Wrapped in a circuit breaker.
         Runs the synchronous Milvus call in a separate thread.
+        expr: optional Milvus filter expression (e.g. 'metadata["article_number"] == 24')
         """
         try:
-            return await asyncio.to_thread(self._search_sync, vector, limit)
+            return await asyncio.to_thread(self._search_sync, vector, limit, expr)
         except pybreaker.CircuitBreakerError:
             log.error("Circuit breaker passed: Milvus is unavailable.")
             raise
@@ -53,21 +54,26 @@ class VectorStoreService:
             log.error("Vector search failed", error=str(e))
             raise
 
-    def _search_sync(self, vector: list[float], limit: int) -> list[dict]:
+    def _search_sync(self, vector: list[float], limit: int, expr: str = None) -> list[dict]:
         self._connect()
-        
+
         search_params = {
             "metric_type": "COSINE",
             "params": {"ef": 10},
         }
-        
-        results = self._collection.search(
+
+        search_kwargs = dict(
             data=[vector],
             anns_field="vector",
             param=search_params,
             limit=limit,
             output_fields=["text_content", "source_type", "metadata"]
         )
+        if expr:
+            search_kwargs["expr"] = expr
+            log.info("Milvus search with filter", expr=expr)
+
+        results = self._collection.search(**search_kwargs)
         
         hits_data = []
         for hits in results:
