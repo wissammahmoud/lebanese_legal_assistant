@@ -28,9 +28,10 @@ _OFF_TOPIC_RESPONSE = (
 _INTENT_SYSTEM_PROMPT = """\
 Classify the user's message into exactly one of these three categories:
 - greeting: a social greeting, farewell, or small talk with no legal content (e.g. "hello", "how are you", "هو ار يو", "مرحبا", "شكراً")
-- legal: any question, scenario, or request related to Lebanese law, legal procedures, court rulings, contracts, or legal rights
+- legal: any question, scenario, or request related to Lebanese law, legal procedures, court rulings, contracts, or legal rights — INCLUDING follow-up requests like "tell me more", "elaborate", "continue", "explain further", "أخبرني أكثر", "وضّح أكثر" when the conversation history is about a legal topic
 - off_topic: anything else that is not a legal question and not a greeting (e.g. weather, sports, cooking, jokes, technical questions unrelated to law)
 
+If conversation history is provided, use it to understand whether the message is a follow-up to a legal discussion.
 Reply with ONLY one word: greeting, legal, or off_topic.\
 """
 
@@ -54,7 +55,7 @@ class RAGService:
         log.info("Processing query", query=query)
 
         # 0. Intent gate
-        intent = await self._classify_intent(query)
+        intent = await self._classify_intent(query, request.history)
         log.info("Intent classified", intent=intent)
         if intent == "greeting":
             return ChatResponse(response=_GREETING_RESPONSE, sources=[])
@@ -86,7 +87,7 @@ class RAGService:
         log.info("Streaming query", query=query)
 
         # 0. Intent gate — short-circuit before touching rewriter / embeddings / Milvus
-        intent = await self._classify_intent(query)
+        intent = await self._classify_intent(query, request.history)
         log.info("Intent classified", intent=intent)
         if intent == "greeting":
             yield {"type": "sources", "sources": []}
@@ -190,15 +191,19 @@ class RAGService:
 
         return messages, sources, context_text
 
-    async def _classify_intent(self, query: str) -> str:
+    async def _classify_intent(self, query: str, history=None) -> str:
         """Returns 'greeting', 'legal', or 'off_topic'. Falls back to 'legal' on error."""
         try:
+            messages = [{"role": "system", "content": _INTENT_SYSTEM_PROMPT}]
+            # Include last 2 history turns so the classifier understands follow-ups
+            if history:
+                for msg in history[-2:]:
+                    messages.append({"role": msg.role, "content": msg.content})
+            messages.append({"role": "user", "content": query})
+
             resp = await self.llm_service.client.chat.completions.create(
                 model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": _INTENT_SYSTEM_PROMPT},
-                    {"role": "user", "content": query},
-                ],
+                messages=messages,
                 temperature=0,
                 max_tokens=5,
             )
@@ -269,4 +274,18 @@ class RAGService:
 ⚖️ قرار رقم 128 لعام 2021 — محكمة التمييز الجزائية — جلسة 15/09/2021 — الرئيس: سهير الحركة
 
 داًئماً حافظ على نبرة مهنية ورسمية.
+
+---
+**سؤال متابعة:**
+في نهاية كل إجابة، اطرح سؤال متابعة واحد فقط. يجب أن يكون أحد الأنواع التالية حسب السياق:
+- **إجراء مقترح**: خطوة عملية يمكن للمستخدم اتخاذها (مثال: "هل ترغب في مراجعة نموذج عقد إيجار يتوافق مع هذه الأحكام؟")
+- **اقتراح استباقي**: تنبيه قانوني وقائي أو نقطة يجب الانتباه إليها (مثال: "هل تودّ الاطلاع على مهل التقادم المتعلقة بهذا الموضوع لتجنّب سقوط الحق؟")
+- **سؤال توضيحي**: طلب معلومات إضافية لتقديم إجابة أدق (مثال: "هل يمكنك تحديد نوع العقد المعني لأتمكن من تحديد النص القانوني المنطبق بدقة؟")
+
+قواعد سؤال المتابعة:
+1. يجب أن يكون سؤال المتابعة مرتبطاً مباشرة بموضوع السؤال الأصلي.
+2. يجب أن يضيف قيمة حقيقية للمستخدم ولا يكون عاماً أو مكرراً.
+3. اختر النوع الأنسب بحسب طبيعة السؤال: إذا كانت الإجابة تفتقر لتفاصيل اختر سؤالاً توضيحياً، إذا كانت مكتملة اختر إجراءً مقترحاً أو اقتراحاً استباقياً.
+4. لا تخترع أو تفترض وقائع قانونية في السؤال.
+5. التزم بالحذر القانوني: لا تقدم السؤال كمشورة قانونية نهائية بل كتوجيه للبحث أو الاستشارة.
 """

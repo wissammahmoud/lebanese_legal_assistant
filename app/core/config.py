@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     
     SERVICE_API_KEY: str
+    ALLOWED_ORIGINS: str = "*"
 
     OPENAI_API_KEY: str
     

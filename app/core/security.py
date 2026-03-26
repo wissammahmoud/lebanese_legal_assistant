@@ -9,6 +9,6 @@ async def verify_service_key(x_service_key: str = Header(..., alias="X-SERVICE-K
     Validates the X-SERVICE-KEY header for service-to-service authentication.
     """
     if x_service_key != settings.SERVICE_API_KEY:
-        log.warning("Invalid Service Key attempt", received=x_service_key, expected=settings.SERVICE_API_KEY)
+        log.warning("Invalid Service Key attempt", received_suffix=x_service_key[-4:] if x_service_key else "empty")
         raise HTTPException(status_code=403, detail="Invalid Service Key")
     return x_service_key

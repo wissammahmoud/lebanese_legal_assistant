@@ -38,15 +38,14 @@ async function sendMessage() {
     let assistantMessageContent = null;
     let fullResponse = "";
     const API_URL = (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1') || window.location.protocol === 'file:' || !window.location.hostname)
-        ? 'http://127.0.0.1:1234/api/v1/chat/stream' // Local FastAPI port
-        : '/api/v1/chat/stream';                   // Vercel relative path
+        ? 'http://127.0.0.1:1234/api/v1/chat/web-stream' // Local FastAPI port
+        : '/api/v1/chat/web-stream';                      // Vercel relative path
 
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-SERVICE-KEY': 'Secret_key'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 query: text,
@@ -80,7 +79,7 @@ async function sendMessage() {
 
                         fullResponse += data.content;
                         updateMessageLanguage(assistantMessageContent, fullResponse);
-                        assistantMessageContent.innerHTML = formatMarkdown(fullResponse);
+                        assistantMessageContent.innerHTML = DOMPurify.sanitize(formatMarkdown(fullResponse));
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     } else if (data.type === 'error') {
                         appendMessage('assistant', `⚠️ Error: ${data.content}`);
@@ -150,7 +149,7 @@ function appendMessage(role, content) {
     let formattedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     formattedContent = formattedContent.replace(/\n/g, '<br>');
 
-    contentDiv.innerHTML = formattedContent;
+    contentDiv.innerHTML = DOMPurify.sanitize(formattedContent);
     messageDiv.appendChild(contentDiv);
     chatMessages.appendChild(messageDiv);
 
