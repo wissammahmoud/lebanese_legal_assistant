@@ -26,6 +26,10 @@ wheels/
 venv/
 .venv/
 ENV/
+Adlvenv/
+
+# Credentials / secrets
+*.txt
 
 # IDEs
 .vscode/

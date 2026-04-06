@@ -82,17 +82,18 @@ def ingest_data(excel_path: str):
             text = str(row["text_content"])
             source = str(row["source_type"])
             
-            # Simple Metadata handling
+            # Simple Metadata handling (case-insensitive column lookup)
             meta = {}
-            if "metadata" in df.columns and pd.notna(row["metadata"]):
+            meta_col = next((c for c in df.columns if c.lower() == "metadata"), None)
+            if meta_col and pd.notna(row[meta_col]):
                 try:
-                    val = row["metadata"]
+                    val = row[meta_col]
                     if isinstance(val, str):
                         meta = json.loads(val)
                     elif isinstance(val, dict):
                         meta = val
                 except:
-                    meta = {"raw": str(row["metadata"])}
+                    meta = {"raw": str(row[meta_col])}
             
             vector = get_embedding(client, text)
             
@@ -141,6 +142,22 @@ def ingest_data(excel_path: str):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python ingest_data.py <path_to_excel>")
+        print("Usage: python ingest_data.py <path_to_excel_or_directory>")
     else:
-        ingest_data(sys.argv[1])
+        target = sys.argv[1]
+        if os.path.isdir(target):
+            excel_files = []
+            for root, _, files in os.walk(target):
+                for f in files:
+                    if f.endswith(".xlsx") or f.endswith(".xls"):
+                        excel_files.append(os.path.join(root, f))
+            if not excel_files:
+                print(f"No Excel files found in {target}")
+            else:
+                print(f"Found {len(excel_files)} Excel files. Starting ingestion...")
+                for i, path in enumerate(excel_files, 1):
+                    print(f"\n[{i}/{len(excel_files)}] Ingesting: {path}")
+                    ingest_data(path)
+                print("\nAll files ingested.")
+        else:
+            ingest_data(target)
